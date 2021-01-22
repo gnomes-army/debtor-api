@@ -33,6 +33,8 @@ module.exports = {
     'import/prefer-default-export': 'off',
     'no-useless-constructor': 'off',
     'class-methods-use-this': 'off',
+    'no-return-assign': 'off',
+    'no-shadow': 'off',
     'import/extensions': ['error', 'never'],
     'import/no-extraneous-dependencies': 'off',
     'max-len': ['error', { code: 100, ignoreStrings: true }],

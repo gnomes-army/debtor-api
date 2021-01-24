@@ -2,7 +2,10 @@
   "name": "debtor-backend",
   "version": "0.0.1",
   "description": "",
-  "author": "",
+  "author": "Oleg Babenko <majerkravchuk@gmail.com>",
+  "contributors": [
+    "Oleg Babenko <majerkravchuk@gmail.com>"
+  ],
   "private": true,
   "license": "UNLICENSED",
   "scripts": {

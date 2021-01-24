@@ -20,6 +20,18 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "*.{ts,js}": [
+      "npm run lint",
+      "npm run format"
+    ]
+  },
   "dependencies": {
     "@nestjs/common": "^7.5.1",
     "@nestjs/config": "^0.6.2",
@@ -47,7 +59,9 @@
     "eslint-import-resolver-typescript": "^2.3.0",
     "eslint-plugin-import": "^2.22.1",
     "eslint-plugin-prettier": "^3.1.4",
+    "husky": "^4.3.8",
     "jest": "^26.6.3",
+    "lint-staged": "^10.5.3",
     "prettier": "^2.1.2",
     "supertest": "^6.0.0",
     "ts-jest": "^26.4.3",

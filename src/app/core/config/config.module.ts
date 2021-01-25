@@ -15,14 +15,9 @@ const validationSchema = () => {
   };
 
   if (!isTest) {
-    [
-      // 'DB_USERNAME',
-      // 'DB_NAME',
-      // 'DB_HOST',
-      'SESSION_SECRET',
-      'REDIS_HOST',
-      'REDIS_PORT',
-    ].forEach((key) => (schema[key] = string().required()));
+    ['DATABASE_URL', 'SESSION_SECRET', 'REDIS_HOST', 'REDIS_PORT'].forEach(
+      (key) => (schema[key] = string().required()),
+    );
 
     schema.DB_PASSWORD = string().optional();
   }

@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { ConfigModule } from '../config/config.module';
 
 @Module({
@@ -14,6 +15,7 @@ import { ConfigModule } from '../config/config.module';
         synchronize: false,
         entities: [`${__dirname}/../../**/*.entity{.ts,.js}`],
         migrations: [`${__dirname}/../../../db/migrations/*{.ts,.js}`],
+        namingStrategy: new SnakeNamingStrategy(),
       }),
       inject: [ConfigService],
     }),

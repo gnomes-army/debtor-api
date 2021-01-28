@@ -15,7 +15,7 @@ const validationSchema = () => {
   };
 
   if (!isTest) {
-    ['DATABASE_URL', 'SESSION_SECRET', 'REDIS_HOST', 'REDIS_PORT'].forEach(
+    ['DATABASE_URL', 'JWT_SECRET', 'REDIS_HOST', 'REDIS_PORT'].forEach(
       (key) => (schema[key] = string().required()),
     );
 

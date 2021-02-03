@@ -12,8 +12,8 @@ import { ConfigModule } from '../config/config.module';
         type: 'postgres',
         url: configService.get<string>('DATABASE_URL'),
         logging: true,
-        extra: {
-          ssl: true,
+        ssl: {
+          rejectUnauthorized: false,
         },
         synchronize: false,
         entities: [`${__dirname}/../../**/*.entity{.ts,.js}`],

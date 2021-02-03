@@ -15,9 +15,7 @@ const validationSchema = () => {
   };
 
   if (!isTest) {
-    ['DATABASE_URL', 'JWT_SECRET', 'REDIS_HOST', 'REDIS_PORT'].forEach(
-      (key) => (schema[key] = string().required()),
-    );
+    ['DATABASE_URL', 'JWT_SECRET'].forEach((key) => (schema[key] = string().required()));
 
     schema.DB_PASSWORD = string().optional();
   }

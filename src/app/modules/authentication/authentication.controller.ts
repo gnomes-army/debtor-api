@@ -1,13 +1,13 @@
 import { Controller, Get, Query, Redirect, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
-import { SerializeDto } from '~src/app/core/decorators';
-import { AuthService, AuthUser } from '../services/auth.service';
-import { Public } from '../decorators/public.decorator';
+import { Public } from '~core/authorization';
+import { SerializeDto } from '~core/decorators';
+import { AuthenticationService, AuthenticationUser } from './authentication.service';
 
 @Controller('auth')
-export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+export class AuthenticationController {
+  constructor(private readonly authService: AuthenticationService) {}
 
   @Get('google')
   @Public()
@@ -24,7 +24,7 @@ export class AuthController {
     return {
       url: `http://localhost:3000/auth/google/validate?code=${encodeURIComponent(
         code,
-      )}&redirectUri=http%3A%2F%2Flocalhost%3A3000%2Fauth%2Fgoogle%2Fredirect`,
+      )}&redirectUri=${encodeURIComponent('http://localhost:3000/auth/google/redirect')}`,
     };
   }
 
@@ -33,8 +33,6 @@ export class AuthController {
   @UseGuards(AuthGuard('google'))
   @SerializeDto()
   async connectionValidate(@Req() request: Request) {
-    return {
-      accessToken: await this.authService.signIn(<AuthUser>request.user),
-    };
+    return this.authService.signIn(<AuthenticationUser>request.user);
   }
 }

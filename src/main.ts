@@ -22,4 +22,5 @@ async function bootstrap() {
     logger.log(`Server is listening on port ${PORT} in ${ENV} env`);
   });
 }
+
 bootstrap();

@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule as NestConfigModule } from '@nestjs/config';
 import { number, object, Schema, string } from 'joi';
-import { Environment } from '~core/types';
+import { Environment, EnvironmentVariables } from '~core/types';
 
 const isTest = process.env.NODE_ENV === 'test';
 
 const validationSchema = () => {
   const schema: { [key: string]: Schema } = {
-    ENV: string()
+    [EnvironmentVariables.ENV]: string()
       .valid(...Object.values(Environment))
       .default(Environment.Local),
 
@@ -15,9 +15,15 @@ const validationSchema = () => {
   };
 
   if (!isTest) {
-    ['DATABASE_URL', 'JWT_SECRET'].forEach((key) => (schema[key] = string().required()));
-
-    schema.DB_PASSWORD = string().optional();
+    [
+      EnvironmentVariables.DATABASE_URL,
+      EnvironmentVariables.REDIS_URL,
+      EnvironmentVariables.JWT_SECRET,
+      EnvironmentVariables.JWT_ACCESS_TTL,
+      EnvironmentVariables.JWT_REFRESH_TTL,
+      EnvironmentVariables.GOOGLE_OAUTH2_CLIENT_ID,
+      EnvironmentVariables.GOOGLE_OAUTH2_CLIENT_SECRET,
+    ].forEach((key) => (schema[key] = string().required()));
   }
 
   return object(schema);

@@ -1,9 +1,10 @@
-import { Controller, Get, Query, Redirect, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, Redirect, Req, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { Public } from '~core/authorization';
 import { SerializeDto } from '~core/decorators';
 import { AuthenticationService, AuthenticationUser } from './authentication.service';
+import { RefreshDto } from './dto/refresh.dto';
 
 @Controller('auth')
 export class AuthenticationController {
@@ -34,5 +35,11 @@ export class AuthenticationController {
   @SerializeDto()
   async connectionValidate(@Req() request: Request) {
     return this.authService.signIn(<AuthenticationUser>request.user);
+  }
+
+  @Post('refresh')
+  @Public()
+  async refresh(@Body() body: RefreshDto) {
+    return this.authService.refresh(body);
   }
 }

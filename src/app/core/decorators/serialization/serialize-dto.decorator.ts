@@ -8,5 +8,8 @@ import {
 export const SerializeDto = () =>
   applyDecorators(
     UseInterceptors(ClassSerializerInterceptor),
-    SerializeOptions({ excludeExtraneousValues: true }),
+    SerializeOptions({
+      excludeExtraneousValues: true,
+      strategy: 'excludeAll',
+    }),
   );

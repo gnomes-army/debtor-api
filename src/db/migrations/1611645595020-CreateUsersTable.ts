@@ -14,10 +14,11 @@ export class CreateUsersTable1611645595020 implements MigrationInterface {
         avatar varchar,
 
         created_at timestamp without time zone NOT NULL DEFAULT now(),
-        updated_at timestamp without time zone NOT NULL DEFAULT now(),
 
         primary key(id)
       );
+
+      create index idx_users_pagination on users (created_at, id);
     `);
   }
 

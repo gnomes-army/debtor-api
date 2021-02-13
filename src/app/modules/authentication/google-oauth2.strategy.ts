@@ -3,13 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { Profile, Strategy, VerifyCallback } from 'passport-google-oauth20';
+import { EnvironmentVariables } from '~core/types';
 
 @Injectable()
 export class GoogleOAuth2Strategy extends PassportStrategy(Strategy, 'google') {
   constructor(configService: ConfigService) {
     super({
-      clientID: configService.get<string>('GOOGLE_OAUTH2_CLIENT_ID'),
-      clientSecret: configService.get<string>('GOOGLE_OAUTH2_CLIENT_SECRET'),
+      clientID: configService.get<string>(EnvironmentVariables.GOOGLE_OAUTH2_CLIENT_ID),
+      clientSecret: configService.get<string>(EnvironmentVariables.GOOGLE_OAUTH2_CLIENT_SECRET),
       callbackURL: '/',
       scope: ['email', 'profile'],
     });
@@ -22,7 +23,11 @@ export class GoogleOAuth2Strategy extends PassportStrategy(Strategy, 'google') {
       throw new UnprocessableEntityException('redirectUri is not provided');
     }
 
-    super.authenticate(req, { ...options, callbackURL: redirectUri, prompt: 'login' });
+    super.authenticate(req, {
+      ...options,
+      callbackURL: redirectUri,
+      prompt: 'login',
+    });
   }
 
   async validate(

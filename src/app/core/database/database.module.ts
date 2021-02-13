@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
 import { ConfigModule } from '~core/config';
-import { Environment } from '~core/types';
+import { Environment, EnvironmentVariables } from '~core/types';
 
 @Module({
   imports: [
@@ -11,13 +11,13 @@ import { Environment } from '~core/types';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'postgres',
-        url: configService.get<string>('DATABASE_URL'),
+        url: configService.get<string>(EnvironmentVariables.DATABASE_URL),
         logging: true,
         synchronize: false,
         entities: [`${__dirname}/../../**/*.entity{.ts,.js}`],
         migrations: [`${__dirname}/../../../db/migrations/*{.ts,.js}`],
         namingStrategy: new SnakeNamingStrategy(),
-        ...(configService.get<string>('ENV') === Environment.Local
+        ...(configService.get<string>(EnvironmentVariables.ENV) === Environment.Local
           ? {}
           : {
               migrationsRun: true,

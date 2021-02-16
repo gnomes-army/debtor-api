@@ -1,11 +1,17 @@
-import { IsBase64, IsNumberString, IsOptional } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNumber, IsOptional, IsPositive, Max } from 'class-validator';
 
 export class CollectionQueryDto {
   @IsOptional()
-  @IsBase64()
-  cursor: string;
+  @IsNumber()
+  @IsPositive()
+  @Type(() => Number)
+  readonly page: number = 1;
 
+  @IsNumber()
   @IsOptional()
-  @IsNumberString()
-  limit: number;
+  @IsPositive()
+  @Max(100)
+  @Type(() => Number)
+  readonly limit = 30;
 }

@@ -1,10 +1,9 @@
 import { Body, Controller, Get, Post, Query, Redirect, Req, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { Request } from 'express';
 import { Public } from '~core/authorization';
-import { SerializeDto } from '~core/decorators';
 import { AuthenticationService, AuthenticationUser } from './authentication.service';
 import { RefreshDto } from './dto/refresh.dto';
+import { GoogleOAuth2Guard } from './google-oauth2.guard';
 
 @Controller('auth')
 export class AuthenticationController {
@@ -12,7 +11,7 @@ export class AuthenticationController {
 
   @Get('google')
   @Public()
-  @UseGuards(AuthGuard('google'))
+  @UseGuards(GoogleOAuth2Guard)
   auth() {}
 
   /**
@@ -31,8 +30,7 @@ export class AuthenticationController {
 
   @Get('google/validate')
   @Public()
-  @UseGuards(AuthGuard('google'))
-  @SerializeDto()
+  @UseGuards(GoogleOAuth2Guard)
   async connectionValidate(@Req() request: Request) {
     return this.authService.signIn(<AuthenticationUser>request.user);
   }

@@ -1,5 +1,5 @@
-import { Logger, ValidationPipe } from '@nestjs/common';
-import { NestFactory } from '@nestjs/core';
+import { ClassSerializerInterceptor, Logger, ValidationPipe } from '@nestjs/common';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as morgan from 'morgan';
 import { AppModule } from '~app/app.module';
@@ -19,6 +19,18 @@ async function bootstrap() {
       whitelist: true,
     }),
   );
+
+  app.useGlobalInterceptors(
+    new ClassSerializerInterceptor(app.get(Reflector), {
+      excludeExtraneousValues: true,
+      strategy: 'excludeAll',
+    }),
+  );
+
+  app.enableCors({
+    origin: [/https?:\/\/localhost(:\d+)?$/],
+    credentials: true,
+  });
 
   await app.listen(PORT, () => {
     logger.log(`Server is listening on port ${PORT} in ${ENV} env`);

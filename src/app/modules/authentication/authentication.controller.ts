@@ -20,11 +20,13 @@ export class AuthenticationController {
   @Get('google/redirect')
   @Public()
   @Redirect()
-  redirect(@Query('code') code: string) {
+  redirect(@Req() req: Request, @Query('code') code: string) {
+    const host = `${req.protocol}://${req.get('host')}`;
+
     return {
-      url: `http://localhost:3000/auth/google/validate?code=${encodeURIComponent(
+      url: `${host}/auth/google/validate?code=${encodeURIComponent(
         code,
-      )}&redirectUri=${encodeURIComponent('http://localhost:3000/auth/google/redirect')}`,
+      )}&redirectUri=${encodeURIComponent(`${host}/auth/google/redirect`)}`,
     };
   }
 

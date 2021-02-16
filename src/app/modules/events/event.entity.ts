@@ -1,4 +1,3 @@
-import { SerializeOptions } from '@nestjs/common';
 import { Expose } from 'class-transformer';
 import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '~core/database';

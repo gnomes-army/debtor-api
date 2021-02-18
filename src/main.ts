@@ -2,10 +2,11 @@ import { ClassSerializerInterceptor, Logger, ValidationPipe } from '@nestjs/comm
 import { NestFactory, Reflector } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import * as morgan from 'morgan';
+import * as cookieParser from 'cookie-parser';
 import { AppModule } from '~app/app.module';
 
 async function bootstrap() {
-  const { ENV, PORT = 3000 } = process.env;
+  const { ENV, PORT = 3000, COOKIES_SECRET } = process.env;
   const logger = new Logger('bootstrap');
 
   process.env.TZ = 'UTC';
@@ -31,6 +32,8 @@ async function bootstrap() {
     origin: [/https?:\/\/localhost(:\d+)?$/],
     credentials: true,
   });
+
+  app.use(cookieParser(COOKIES_SECRET));
 
   await app.listen(PORT, () => {
     logger.log(`Server is listening on port ${PORT} in ${ENV} env`);

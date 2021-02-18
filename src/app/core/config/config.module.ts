@@ -21,6 +21,7 @@ const validationSchema = () => {
       EnvironmentVariables.JWT_SECRET,
       EnvironmentVariables.JWT_ACCESS_TTL,
       EnvironmentVariables.JWT_REFRESH_TTL,
+      EnvironmentVariables.COOKIES_SECRET,
       EnvironmentVariables.GOOGLE_OAUTH2_CLIENT_ID,
       EnvironmentVariables.GOOGLE_OAUTH2_CLIENT_SECRET,
     ].forEach((key) => (schema[key] = string().required()));

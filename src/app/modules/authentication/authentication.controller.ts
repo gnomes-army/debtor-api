@@ -1,13 +1,20 @@
-import { Body, Controller, Get, Post, Query, Redirect, Req, UseGuards } from '@nestjs/common';
-import { Request } from 'express';
-import { Public } from '~core/authorization';
+import { Controller, Get, HttpCode, Query, Redirect, Req, Res, UseGuards } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { plainToClass } from 'class-transformer';
+import { Request, Response } from 'express';
+import { CurrentUser, Public, User } from '~core/authorization';
+import { EnvironmentVariables } from '~src/app/core/types';
 import { AuthenticationService, AuthenticationUser } from './authentication.service';
-import { RefreshDto } from './dto/refresh.dto';
+import { AuthenticationResponseDto } from './dto/authentication-response.dto';
+import { TokensPairDto } from './dto/tokens-pair.dto';
 import { GoogleOAuth2Guard } from './google-oauth2.guard';
 
 @Controller('auth')
 export class AuthenticationController {
-  constructor(private readonly authService: AuthenticationService) {}
+  constructor(
+    private readonly authService: AuthenticationService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Get('google')
   @Public()
@@ -33,13 +40,57 @@ export class AuthenticationController {
   @Get('google/validate')
   @Public()
   @UseGuards(GoogleOAuth2Guard)
-  async connectionValidate(@Req() request: Request) {
-    return this.authService.signIn(<AuthenticationUser>request.user);
+  async connectionValidate(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const tokens = await this.authService.signIn(<AuthenticationUser>req.user);
+    return this.setCookiesAndRespond(res, tokens);
   }
 
-  @Post('refresh')
+  @Get('refresh')
   @Public()
-  async refresh(@Body() body: RefreshDto) {
-    return this.authService.refresh(body);
+  async refresh(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
+    const tokens = await this.authService.refresh(
+      req.signedCookies.accessToken,
+      req.signedCookies.refreshToken,
+    );
+    return this.setCookiesAndRespond(res, tokens);
+  }
+
+  @Get('sign-out')
+  @HttpCode(204)
+  async signout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('accessToken');
+    res.clearCookie('refreshToken');
+  }
+
+  @Get('current-user')
+  async currentUser(@CurrentUser() user: User) {
+    return this.authService.currentUser(user.id);
+  }
+
+  private setCookiesAndRespond(res: Response, tokens: TokensPairDto): AuthenticationResponseDto {
+    const accessTokenExpires = new Date(
+      Date.now() + this.configService.get<number>(EnvironmentVariables.JWT_ACCESS_TTL) * 1000,
+    );
+
+    const refreshTokenExpires = new Date(
+      Date.now() + this.configService.get<number>(EnvironmentVariables.JWT_REFRESH_TTL) * 1000,
+    );
+
+    res.cookie('accessToken', tokens.accessToken, {
+      httpOnly: true,
+      signed: true,
+      expires: refreshTokenExpires,
+    });
+
+    res.cookie('refreshToken', tokens.refreshToken, {
+      httpOnly: true,
+      signed: true,
+      path: '/auth/refresh',
+      expires: refreshTokenExpires,
+    });
+
+    return plainToClass(AuthenticationResponseDto, {
+      expiresAt: accessTokenExpires.getTime(),
+    });
   }
 }

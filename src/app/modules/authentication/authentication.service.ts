@@ -8,8 +8,8 @@ import { v4 as uuid } from 'uuid';
 import { EnvironmentVariables } from '~core/types';
 import { UserEntity } from '~modules/users/user.entity';
 import { UserRepository } from '~modules/users/user.repository';
-import { AuthenticationResponseDto } from './dto/authentication-response.dto';
-import { RefreshDto } from './dto/refresh.dto';
+import { CurrentUserDto } from './dto/current-user.dto';
+import { TokensPairDto } from './dto/tokens-pair.dto';
 
 export type AuthenticationUser = Pick<UserEntity, 'email' | 'firstName' | 'lastName' | 'avatar'>;
 
@@ -27,7 +27,7 @@ export class AuthenticationService {
     private readonly redisService: RedisService,
   ) {}
 
-  public async signIn(authUser: AuthenticationUser): Promise<AuthenticationResponseDto> {
+  public async signIn(authUser: AuthenticationUser): Promise<TokensPairDto> {
     let user = await this.userRepository.findOne({ email: authUser.email });
 
     if (!user) {
@@ -39,8 +39,8 @@ export class AuthenticationService {
     return this.issueTokens(user.id);
   }
 
-  public async refresh(refreshDto: RefreshDto): Promise<AuthenticationResponseDto> {
-    const decoded = this.jwtService.decode(refreshDto.accessToken) as JwtPayload;
+  public async refresh(accessToken: string, refreshToken: string): Promise<TokensPairDto> {
+    const decoded = this.jwtService.decode(accessToken) as JwtPayload;
 
     if (!decoded) {
       throw new UnauthorizedException();
@@ -48,9 +48,9 @@ export class AuthenticationService {
 
     const refreshTokenKey = `refresh:${decoded.sub}:${decoded.jti}`;
     const redisClient = this.redisService.getClient();
-    const refreshToken = await redisClient.get(refreshTokenKey);
+    const storedRefreshToken = await redisClient.get(refreshTokenKey);
 
-    if (!refreshToken || refreshToken !== refreshDto.refreshToken) {
+    if (!storedRefreshToken || storedRefreshToken !== refreshToken) {
       throw new UnauthorizedException();
     }
 
@@ -58,7 +58,12 @@ export class AuthenticationService {
     return this.issueTokens(decoded.sub);
   }
 
-  private async issueTokens(userId: string): Promise<AuthenticationResponseDto> {
+  public async currentUser(id: string): Promise<CurrentUserDto> {
+    const user = await this.userRepository.findOne({ id });
+    return plainToClass(CurrentUserDto, { id: user.id, email: user.email, avatar: user.avatar });
+  }
+
+  private async issueTokens(userId: string): Promise<TokensPairDto> {
     const jwtid = uuid();
     const refreshToken = generate(32);
     const refreshTokenKey = `refresh:${userId}:${jwtid}`;
@@ -66,7 +71,7 @@ export class AuthenticationService {
 
     await this.redisService.getClient().set(refreshTokenKey, refreshToken, 'EX', ttl);
 
-    return plainToClass(AuthenticationResponseDto, {
+    return plainToClass(TokensPairDto, {
       accessToken: this.jwtService.sign({ sub: userId }, { jwtid }),
       refreshToken,
     });

@@ -16,7 +16,7 @@ import { GoogleOAuth2Strategy } from './google-oauth2.strategy';
       useFactory: (configService: ConfigService) => ({
         secret: configService.get<string>(EnvironmentVariables.JWT_SECRET),
         signOptions: {
-          expiresIn: configService.get<string>(EnvironmentVariables.JWT_ACCESS_TTL),
+          expiresIn: `${configService.get<number>(EnvironmentVariables.JWT_ACCESS_TTL)}s`,
         },
       }),
       inject: [ConfigService],

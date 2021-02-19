@@ -1,9 +1,9 @@
 import { Controller, Get, HttpCode, Query, Redirect, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { plainToClass } from 'class-transformer';
-import { Request, Response } from 'express';
+import { CookieOptions, Request, Response } from 'express';
 import { CurrentUser, Public, User } from '~core/authorization';
-import { EnvironmentVariables } from '~src/app/core/types';
+import { Environment, EnvironmentVariables } from '~src/app/core/types';
 import { AuthenticationService, AuthenticationUser } from './authentication.service';
 import { AuthenticationResponseDto } from './dto/authentication-response.dto';
 import { TokensPairDto } from './dto/tokens-pair.dto';
@@ -76,17 +76,26 @@ export class AuthenticationController {
       Date.now() + this.configService.get<number>(EnvironmentVariables.JWT_REFRESH_TTL) * 1000,
     );
 
-    res.cookie('accessToken', tokens.accessToken, {
+    const local =
+      this.configService.get<Environment>(EnvironmentVariables.ENV) === Environment.Local;
+
+    const baseCookieOptions: CookieOptions = {
       httpOnly: true,
       signed: true,
+      sameSite: local ? false : 'none',
+      secure: !local,
       expires: refreshTokenExpires,
+    };
+
+    res.cookie('accessToken', tokens.accessToken, {
+      expires: refreshTokenExpires,
+      ...baseCookieOptions,
     });
 
     res.cookie('refreshToken', tokens.refreshToken, {
-      httpOnly: true,
-      signed: true,
       path: '/auth/refresh',
       expires: refreshTokenExpires,
+      ...baseCookieOptions,
     });
 
     return plainToClass(AuthenticationResponseDto, {

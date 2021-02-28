@@ -29,7 +29,7 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: [/https?:\/\/localhost(:\d+)?$/],
+    origin: [/https:\/\/debtor-react-frontend.herokuapp.com/, /https?:\/\/localhost(:\d+)?/],
     credentials: true,
   });
 

@@ -1,4 +1,4 @@
-import { Controller, Get, HttpCode, Query, Redirect, Req, Res, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpCode, Req, Res, UseGuards } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { plainToClass } from 'class-transformer';
 import { CookieOptions, Request, Response } from 'express';
@@ -20,22 +20,6 @@ export class AuthenticationController {
   @Public()
   @UseGuards(GoogleOAuth2Guard)
   auth() {}
-
-  /**
-   * Temp
-   */
-  @Get('google/redirect')
-  @Public()
-  @Redirect()
-  redirect(@Req() req: Request, @Query('code') code: string) {
-    const host = `${req.protocol}://${req.get('host')}`;
-
-    return {
-      url: `${host}/auth/google/validate?code=${encodeURIComponent(
-        code,
-      )}&redirectUri=${encodeURIComponent(`${host}/auth/google/redirect`)}`,
-    };
-  }
 
   @Get('google/validate')
   @Public()

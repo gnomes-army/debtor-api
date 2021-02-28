@@ -11,7 +11,9 @@ const validationSchema = () => {
       .valid(...Object.values(Environment))
       .default(Environment.Local),
 
-    PORT: number(),
+    [EnvironmentVariables.CORS_ORIGINS]: string().optional().default(''),
+
+    [EnvironmentVariables.PORT]: number(),
   };
 
   if (!isTest) {

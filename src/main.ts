@@ -6,7 +6,7 @@ import * as cookieParser from 'cookie-parser';
 import { AppModule } from '~app/app.module';
 
 async function bootstrap() {
-  const { ENV, PORT = 3000, COOKIES_SECRET } = process.env;
+  const { ENV, PORT = 3000, COOKIES_SECRET, CORS_ORIGINS } = process.env;
   const logger = new Logger('bootstrap');
 
   process.env.TZ = 'UTC';
@@ -29,7 +29,10 @@ async function bootstrap() {
   );
 
   app.enableCors({
-    origin: [/https:\/\/debtor-react-frontend.herokuapp.com/, /https?:\/\/localhost(:\d+)?/],
+    origin: [
+      ...CORS_ORIGINS.split(',').map((h) => RegExp(`https:\\/\\/${h}`)),
+      /https?:\/\/localhost(:\d+)?/,
+    ],
     credentials: true,
   });
 

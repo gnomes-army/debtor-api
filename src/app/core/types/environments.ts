@@ -8,6 +8,8 @@ export enum Environment {
 
 export enum EnvironmentVariables {
   ENV = 'ENV',
+  PORT = 'PORT',
+  CORS_ORIGINS = 'CORS_ORIGINS',
   DATABASE_URL = 'DATABASE_URL',
   REDIS_URL = 'REDIS_URL',
   JWT_SECRET = 'JWT_SECRET',
